@@ -1,11 +1,17 @@
+import { baseBeUrl } from '../helper';
 import useApiData from '../hooks/useApiData';
+import { useAuthContext } from '../store/AuthCtxProvider';
+import BuyItemButton from '../components/UI/BuyItemButton';
 
-const itemsUrl = 'http://localhost:3000/api/items';
+
 
 
 export default function ShopPage() {
-  const [itemsArr, setItemsArr] = useApiData(itemsUrl);
+  const [itemsArr, setItemsArr] = useApiData(`${baseBeUrl}items`);
 
+const {isUserLoggedIn, userId} = useAuthContext()
+
+ console.log('userId ===', userId);
  
   return (
     <div className='container bg-slate-300'>
@@ -15,7 +21,7 @@ export default function ShopPage() {
         libero repellat officiis corporis esse iste totam reiciendis voluptatem!
       </p>
 
-      <div className='grid grid-cols-3 gap-4'>
+      <div className='grid grid-cols-3 gap-4 p-3'>
         {itemsArr.map((item) => (
           <div key={item.id}>
             <img src={item.img_url} alt={item.title} />
@@ -25,9 +31,15 @@ export default function ShopPage() {
             <p>rating: {item.rating}</p>
             <p>stock: {item.stock}</p>
             <p>cat_id: {item.cat_id}</p>
-            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
-              Buy item
-            </button>
+            {
+              isUserLoggedIn && (
+                <BuyItemButton
+                itemId = {item.id}
+                customerId = {userId}
+                />
+              )
+            }
+           
           </div>
         ))}
       </div>
