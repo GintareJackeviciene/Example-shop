@@ -12,6 +12,7 @@ import CategoryCreatePage from './pages/Category/CategoryCreatePage';
 import CategoryEditPage from './pages/Category/CategoryEditPage';
 import ItemCreatePage from './pages/Item/ItemCreatePAge';
 import ItemListPage from './pages/Item/ItemListPage';
+import ItemEditPage from './pages/Item/ItemEditPage';
 
 export default function App() {
   return (
@@ -48,6 +49,11 @@ export default function App() {
             <Route path='/items/create' element={
                 <AdminPrivateRoute>
                     <ItemCreatePage/>
+                </AdminPrivateRoute>
+            }/>
+            <Route path='/items/edit/:itemId' element={
+                <AdminPrivateRoute>
+                    <ItemEditPage/>
                 </AdminPrivateRoute>
             }/>
         </Routes>

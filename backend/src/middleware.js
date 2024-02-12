@@ -1,5 +1,5 @@
-const APIError = require('./apiError/ApiError');
 const jwt = require('jsonwebtoken');
+const APIError = require('./apiError/ApiError');
 const { jwtSecret } = require('./config');
 
 const mainErrroHandler = (errorGot, req, res, next) => {
@@ -30,21 +30,20 @@ const validateItemBody = async (req, res, next) => {
 const validateJWTToken = async (req, res, next) => {
   const token = req.header('Authorization');
 
-  if (!token) return res.status(401).json({error: 'Access denied'});
+  if (!token) return res.status(401).json({ error: 'Access denied' });
 
-  if (!jwtSecret) return res.status(401).json({error: 'JWT Secret not Provided'});
+  if (!jwtSecret) return res.status(401).json({ error: 'JWT Secret not Provided' });
 
   try {
- jwt.verify(token, jwtSecret);
+    jwt.verify(token, jwtSecret);
     next();
   } catch (error) {
     return next(new APIError('Token Invalid', 401));
   }
-
 };
 
 module.exports = {
-    mainErrroHandler,
-    validateJWTToken,
-    validateItemBody,
+  mainErrroHandler,
+  validateJWTToken,
+  validateItemBody,
 };

@@ -1,20 +1,26 @@
-import {useFormik} from "formik";
-import * as Yup from "yup";
-import SmartInput from "../../components/UI/SmartInput.jsx";
-import {Link, useNavigate} from "react-router-dom";
-import Select from "react-select";
-import {baseBeUrl} from "../../helper.js";
-import {useEffect, useState} from "react";
 import axios from "axios";
+import { baseBeUrl } from "../../helper";
 import toast from "react-hot-toast";
-import {useAuthContext} from "../../store/AuthCtxProvider.jsx";
+
+import { useAuthContext } from "../../store/AuthCtxProvider";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import Select from "react-select";
+import SmartInput from "../../components/UI/SmartInput";
+import useApiData from "../../hooks/useApiData";
+import { useEffect, useState } from "react";
 
 export default function ItemCreatePage() {
+    const {id} = useParams();
+
+    const [item, setItem] = useApiData(`${baseBeUrl}items/${id}`);
+
     const [categoriesOptions, setCategoriesOptions] = useState([""]);
+
     const {token} = useAuthContext()
 
     const navigate = useNavigate();
-    
 
     useEffect(() => {
         const getOptionData = async () => {
@@ -22,7 +28,7 @@ export default function ItemCreatePage() {
             await axios
                 .get(`${baseBeUrl}categories`, {
                     headers: {'Authorization': token}
-                } )
+                })
                 .then((response) => {
                     let result = response.data;
                     result.map((category) => {
@@ -36,14 +42,15 @@ export default function ItemCreatePage() {
     }, []);
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            title: '',
-            description: '',
-            cat_id: '',
-            price: '',
-            stock: '',
-            rating: '',
-            img_url: ''
+            title: item.title || '',
+            description: item.description || '',
+            cat_id: item.cat_id || '',
+            price: item.price || '',
+            stock: item.stock || '',
+            rating: item.rating || '',
+            img_url: item.img_url || ''
         },
         validationSchema: Yup.object({
             title: Yup.string().min(3).max(255).required(),
@@ -61,12 +68,11 @@ export default function ItemCreatePage() {
 
     function sendAxiosData(data) {
         axios
-            .post(`${baseBeUrl}items`, data, {
+            .put(`${baseBeUrl}items/${id}`, data,{
                 headers: {'Authorization': token}
             })
-         
             .then((response) => {
-                toast.success(response?.message || 'Item has been successfully created!');
+                toast.success(response?.message || 'Item has been successfully updated!');
                 navigate('/items', {replace: true});
             })
             .catch((error) => {
@@ -76,7 +82,7 @@ export default function ItemCreatePage() {
 
     return (
         <div className='container mx-auto'>
-            <h1 className='text-3xl text-center my-10'>Prekės sukūrimas</h1>
+            <h1 className='text-3xl text-center my-10'>Prekės redagavimas</h1>
             <form onSubmit={formik.handleSubmit} className='mt-4' noValidate>
                 <div className='mb-4'>
                     <label
@@ -90,6 +96,8 @@ export default function ItemCreatePage() {
                         name='cat_id'
                         id='cat_id'
                         options={categoriesOptions}
+                        value={categoriesOptions ? categoriesOptions.find(option => option.value === formik.values.cat_id) : ''}
+                        defaultValue={formik.values.cat_id}
                         placeholder='Select Category'
                         onBlur={formik.handleBlur}
                         onChange={(option) => formik.setFieldValue('cat_id', +option.value)}
@@ -138,7 +146,7 @@ export default function ItemCreatePage() {
                     <button
                         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
                         type='submit'>
-                        Sukurti
+                        Redaguoti
                     </button>
                     <Link
                         to='/categories'

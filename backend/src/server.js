@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const chalk = require('chalk');
 const cors = require('cors');
 const authRouter = require('./routes/authRoutes');
-const { mainErrroHandler, validateJWTToken} = require('./middleware');
+const { mainErrroHandler, validateJWTToken } = require('./middleware');
 const itemsRouter = require('./routes/itemRoutes');
 const categoriesRouter = require('./routes/categoryRoutes');
 
