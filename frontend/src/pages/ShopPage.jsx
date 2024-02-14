@@ -25,12 +25,12 @@ const {isUserLoggedIn, userId} = useAuthContext()
         {itemsArr.map((item) => (
           <div key={item.id}>
             <img src={item.img_url} alt={item.title} />
-            <h2>title: {item.title}</h2>
-            <p>description: {item.description}</p>
-            <p>price: {item.price}</p>
-            <p>rating: {item.rating}</p>
-            <p>stock: {item.stock}</p>
-            <p>cat_id: {item.cat_id}</p>
+            <h2><span className='font-bold'>pavadinimas:</span> {item.title}</h2>
+            <p><span className='font-bold'>aprasymas:</span> {item.description}</p>
+            <p><span className='font-bold'>kaina: </span>{item.price}</p>
+            <p><span className='font-bold'>rating: </span>{item.rating}</p>
+            <p><span className='font-bold'>likutis: </span>{item.stock}</p>
+            <p><span className='font-bold'>kategorija:</span> {item.cat_id}</p>
             {
               isUserLoggedIn && (
                 <BuyItemButton

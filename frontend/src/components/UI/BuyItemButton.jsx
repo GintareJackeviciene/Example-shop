@@ -3,40 +3,56 @@ import { baseBeUrl } from "../../helper";
 import { useAuthContext } from "../../store/AuthCtxProvider";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function BuyItemButton({ itemId, customerId }) {
   const navigate = useNavigate();
 
-  const {token} = useAuthContext();
+  const { token } = useAuthContext();
 
- const buyItem = async () => {
+  const [quantity, setQuantity] = useState(1);
 
-sendAxiosData ({
-  item_id: itemId,
-  customer_id: customerId
-})
- };
+  const buyItem = async () => {
 
-function sendAxiosData (data) {
-axios
-.post(`${baseBeUrl}orders`, data, {
-  headers: {'Authorization': token}
-})
-.then((response) => {
-  toast.success(response?.message || 'Order was created successfully!');
-  navigate('/', {replace: true})
-})
-.catch((error) => {
-  toast.error(error.response.data.error);
-})
-}
+    sendAxiosData({
+      item_id: itemId,
+      customer_id: customerId,
+      quantity: parseInt(quantity)
+    })
+  };
+
+  function sendAxiosData(data) {
+    axios
+      .post(`${baseBeUrl}orders`, data, {
+        headers: { 'Authorization': token }
+      })
+      .then((response) => {
+        toast.success(response?.message || 'Order was created successfully!');
+        navigate('/orders', { replace: true })
+      })
+      .catch((error) => {
+        toast.error(error.response.data.error);
+      })
+  }
   return (
-    <button
-    className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      onClick={buyItem}
-    >
+    <div className="">
+      <input
+        className='px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 mr-3'
+        type='number'
+        min='1'
+        max='99'
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value)}
 
-      Buy item
-    </button>
+      />
+
+      <button
+        className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={buyItem}
+      >
+
+        Buy item
+      </button>
+    </div>
   );
 }
