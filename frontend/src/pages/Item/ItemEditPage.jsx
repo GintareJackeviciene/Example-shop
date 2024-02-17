@@ -1,5 +1,5 @@
-import axios from "axios";
-import { baseBeUrl } from "../../helper";
+
+import { baseBackendUrl, baseBeUrl } from "../../helper";
 import toast from "react-hot-toast";
 
 import { useAuthContext } from "../../store/AuthCtxProvider";
@@ -10,17 +10,20 @@ import Select from "react-select";
 import SmartInput from "../../components/UI/SmartInput";
 import useApiData from "../../hooks/useApiData";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function ItemCreatePage() {
-    const {id} = useParams();
+    const {itemId} = useParams();
 
-    const [item, setItem] = useApiData(`${baseBeUrl}items/${id}`);
-
+    const [item, setItem] = useApiData(`${baseBeUrl}items/${itemId}`);
     const [categoriesOptions, setCategoriesOptions] = useState([""]);
+    const [itemImagePreview, setItemImagePreview] = useState('');
 
     const {token} = useAuthContext()
 
     const navigate = useNavigate();
+
+    
 
     useEffect(() => {
         const getOptionData = async () => {
@@ -50,7 +53,8 @@ export default function ItemCreatePage() {
             price: item.price || '',
             stock: item.stock || '',
             rating: item.rating || '',
-            img_url: item.img_url || ''
+            img_url: item.img_url || '',
+            file: ''
         },
         validationSchema: Yup.object({
             title: Yup.string().min(3).max(255).required(),
@@ -60,16 +64,21 @@ export default function ItemCreatePage() {
             stock: Yup.number().required(),
             rating: Yup.number().optional(),
             img_url: Yup.string().optional(),
+            file: Yup.mixed().optional()
         }),
         onSubmit: (values) => {
+
             sendAxiosData(values);
         },
     });
 
     function sendAxiosData(data) {
         axios
-            .put(`${baseBeUrl}items/${id}`, data,{
-                headers: {'Authorization': token}
+            .put(`${baseBeUrl}items/${itemId}`, data, {
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'multipart/form-data',
+                }
             })
             .then((response) => {
                 toast.success(response?.message || 'Item has been successfully updated!');
@@ -79,6 +88,26 @@ export default function ItemCreatePage() {
                 toast.error(error.response.data.error);
             });
     }
+
+    const handleImageChange = (event) => {
+        const file = event.currentTarget.files[0];
+        if (file) {
+            formik.setFieldValue('file', file);
+            formik.setFieldValue('img_url', '');
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setItemImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDeleteImage = () => {
+        setItemImagePreview('');
+        formik.setFieldValue('file', '');
+        formik.setFieldValue('img_url', '');
+    };
 
     return (
         <div className='container mx-auto'>
@@ -138,9 +167,37 @@ export default function ItemCreatePage() {
                     <SmartInput
                         id='img_url'
                         formik={formik}
-                        type='text'
-                        placeholder='Enter item stock'
+                        type='hidden'
                     />
+                    <div className='mt-5'>
+                        {(formik.values['img_url'] || itemImagePreview) && (
+                            <div className="p-5 border mb-5">
+                                <p className="font-bold">Image Preview</p>
+                                <img src={formik.values['img_url'] ? baseBackendUrl + formik.values['img_url'] : itemImagePreview} alt="Profile Preview" style={{width: '200px'}}/>
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteImage}
+                                    className="bg-red-500 hover:bg-red-400 text-white font-bold ml-2 py-2 px-4 rounded"
+                                >
+                                    Delete Image
+                                </button>
+                            </div>
+                        )}
+
+                        <label htmlFor="file" className='w-full mt-5'>
+                            <span className='block'>File upload</span>
+                            <input
+                                name="file"
+                                type="file"
+                                onChange={handleImageChange}
+                                className='w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
+                                accept="image/*"
+                                id="file"/>
+                        </label>
+                        {formik.touched['file'] && formik.errors['file'] && (
+                            <p className='text-red-500 '>{formik.errors['file']}</p>
+                        )}
+                    </div>
                 </div>
                 <div className='flex items-center justify-center mt-5'>
                     <button

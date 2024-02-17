@@ -1,8 +1,8 @@
-import axios from 'axios';
-import {useEffect, useState} from 'react';
-import {useAuthContext} from "../store/AuthCtxProvider.jsx";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../store/AuthCtxProvider";
 import toast from "react-hot-toast";
-import {useNavigate} from "react-router-dom";
 
 export default function useApiData(apiUrl, initValue = [], redirectUrl = '') {
     const [dataArr, setDataArr] = useState(initValue);

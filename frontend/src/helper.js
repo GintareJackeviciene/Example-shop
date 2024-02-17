@@ -1,4 +1,5 @@
-export const baseBeUrl = 'http://localhost:3000/api/';
+export const baseBackendUrl = 'http://localhost:3000/';
+export const baseBeUrl = baseBackendUrl + 'api/';
 
 export const dateTimeOptions = {
     year: 'numeric',
